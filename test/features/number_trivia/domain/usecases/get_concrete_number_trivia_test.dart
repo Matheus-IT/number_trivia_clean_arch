@@ -7,7 +7,7 @@ import 'package:number_trivia_clean_arch/features/number_trivia/domain/entities/
 import 'package:number_trivia_clean_arch/features/number_trivia/domain/repositories/number_trivia_repository.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/domain/usecases/get_concrete_number_trivia.dart';
 
-import 'number_trivia_repository_test.mocks.dart';
+import 'get_concrete_number_trivia_test.mocks.dart';
 
 @GenerateMocks([NumberTriviaRepository])
 void main() {
