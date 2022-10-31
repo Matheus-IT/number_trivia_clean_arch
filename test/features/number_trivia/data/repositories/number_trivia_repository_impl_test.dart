@@ -1,28 +1,80 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:number_trivia_clean_arch/core/platform/network_info.dart';
 
 import 'package:number_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_local_data_source.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_remote_data_source.dart';
+import 'package:number_trivia_clean_arch/features/number_trivia/data/models/number_trivia_model.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/data/repositories/number_trivia_repository_impl.dart';
+import 'package:number_trivia_clean_arch/features/number_trivia/domain/entities/number_trivia.dart';
 
-class MockRemoteDataSource extends Mock
-    implements NumberTriviaRemoteDataSource {}
+import 'number_trivia_repository_impl_test.mocks.dart';
 
-class MockLocalDataSource extends Mock implements NumberTriviaLocalDataSource {}
-
-class MockNetworkInfo extends Mock implements NetworkInfo {}
-
+@GenerateMocks([
+  NumberTriviaRemoteDataSource,
+  NumberTriviaLocalDataSource,
+  NetworkInfo,
+])
 void main() {
-  setUp(() {
-    final mockRemoteDataSource = MockRemoteDataSource();
-    final mockLocalDataSource = MockLocalDataSource();
-    final mockNetworkInfo = MockNetworkInfo();
+  late MockNumberTriviaRemoteDataSource mockRemoteDataSource;
+  late MockNumberTriviaLocalDataSource mockLocalDataSource;
+  late MockNetworkInfo mockNetworkInfo;
+  late NumberTriviaRepositoryImplementation repository;
 
-    final repository = NumberTriviaRepositoryImplementation(
+  setUp(() {
+    mockRemoteDataSource = MockNumberTriviaRemoteDataSource();
+    mockLocalDataSource = MockNumberTriviaLocalDataSource();
+    mockNetworkInfo = MockNetworkInfo();
+
+    repository = NumberTriviaRepositoryImplementation(
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       networkInfo: mockNetworkInfo,
     );
+  });
+
+  group('getConcreteNumberTrivia', () {
+    const testNumber = 1;
+    const testNumberTriviaModel = NumberTriviaModel(
+      number: testNumber,
+      text: 'testing',
+    );
+    const NumberTrivia testNumberTrivia = testNumberTriviaModel;
+
+    test('should check if the device is online', () async {
+      when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      when(mockRemoteDataSource.getConcreteNumberTrivia(testNumber))
+          .thenAnswer((realInvocation) async => testNumberTriviaModel);
+
+      await repository.getConcreteNumberTrivia(testNumber);
+
+      verify(mockNetworkInfo.isConnected);
+    });
+
+    group('the device is online', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      });
+
+      test(
+          'should return remote data when the call to remote data source is successful',
+          () async {
+        when(mockRemoteDataSource.getConcreteNumberTrivia(1))
+            .thenAnswer((_) async => testNumberTriviaModel);
+
+        final result = await repository.getConcreteNumberTrivia(testNumber);
+
+        verify(mockRemoteDataSource.getConcreteNumberTrivia(testNumber));
+        expect(result, equals(const Right(testNumberTrivia)));
+      });
+    });
+
+    group('the device is offline', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      });
+    });
   });
 }
