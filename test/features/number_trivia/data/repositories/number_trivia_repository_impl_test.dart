@@ -100,7 +100,32 @@ void main() {
 
     group('the device is offline', () {
       setUp(() {
-        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+      });
+
+      test(
+          'should return the last cached data when the cached data is available',
+          () async {
+        when(mockLocalDataSource.getLastNumberTrivia())
+            .thenAnswer((_) async => testNumberTriviaModel);
+
+        final result = await repository.getConcreteNumberTrivia(testNumber);
+
+        verifyZeroInteractions(mockRemoteDataSource);
+        verify(mockLocalDataSource.getLastNumberTrivia());
+        expect(result, equals(const Right(testNumberTrivia)));
+      });
+
+      test('should return cache failure when there is no cached data available',
+          () async {
+        when(mockLocalDataSource.getLastNumberTrivia())
+            .thenThrow(CacheException());
+
+        final result = await repository.getConcreteNumberTrivia(testNumber);
+
+        verifyZeroInteractions(mockRemoteDataSource);
+        verify(mockLocalDataSource.getLastNumberTrivia());
+        expect(result, equals(Left(CacheFailure())));
       });
     });
   });
