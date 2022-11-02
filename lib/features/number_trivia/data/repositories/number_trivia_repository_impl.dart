@@ -2,6 +2,7 @@ import 'package:number_trivia_clean_arch/core/error/exeptions.dart';
 import 'package:number_trivia_clean_arch/core/platform/network_info.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_local_data_source.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_remote_data_source.dart';
+import 'package:number_trivia_clean_arch/features/number_trivia/data/models/number_trivia_model.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/domain/entities/number_trivia.dart';
 import 'package:number_trivia_clean_arch/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
@@ -20,32 +21,26 @@ class NumberTriviaRepositoryImplementation implements NumberTriviaRepository {
 
   @override
   Future<Either<Failure, NumberTrivia>> getConcreteNumberTrivia(
-      int number) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final remoteTrivia =
-            await remoteDataSource.getConcreteNumberTrivia(number);
-        localDataSource.cacheNumberTrivia(remoteTrivia);
-        return Right(remoteTrivia);
-      } on ServerException {
-        return Left(ServerFailure());
-      }
-    } else {
-      try {
-        return Right(await localDataSource.getLastNumberTrivia());
-      } on CacheException {
-        return Left(CacheFailure());
-      }
-    }
+    int number,
+  ) async {
+    return await _getTrivia(
+      () => remoteDataSource.getConcreteNumberTrivia(number),
+    );
   }
 
   @override
   Future<Either<Failure, NumberTrivia>> getRandomNumberTrivia() async {
+    return await _getTrivia(() => remoteDataSource.getRandomNumberTrivia());
+  }
+
+  Future<Either<Failure, NumberTrivia>> _getTrivia(
+    Future<NumberTrivia> Function() methodToGet,
+  ) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteTrivia = await remoteDataSource.getRandomNumberTrivia();
-        localDataSource.cacheNumberTrivia(remoteTrivia);
-        return Right(remoteTrivia);
+        final trivia = await methodToGet();
+        localDataSource.cacheNumberTrivia(trivia as NumberTriviaModel);
+        return Right(trivia);
       } on ServerException {
         return Left(ServerFailure());
       }
