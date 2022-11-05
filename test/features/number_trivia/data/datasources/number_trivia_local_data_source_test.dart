@@ -49,4 +49,22 @@ void main() {
       expect(() => method(), throwsA(const TypeMatcher<CacheException>()));
     });
   });
+
+  group('getLastNumberTrivia', () {
+    const testNumberTriviaModel =
+        NumberTriviaModel(number: 1, text: 'testing 123');
+
+    test('should call shared preferences to cache the data', () async {
+      when(mockSharedPreferences.getString(cachedNumberTrivia))
+          .thenReturn(null);
+
+      datasource.cacheNumberTrivia(testNumberTriviaModel);
+
+      final expectedJsonString = json.encode(testNumberTriviaModel.toJson());
+      verify(mockSharedPreferences.setString(
+        cachedNumberTrivia,
+        expectedJsonString,
+      ));
+    });
+  });
 }
