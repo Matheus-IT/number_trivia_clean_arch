@@ -65,9 +65,7 @@ void main() {
       datasource.cacheNumberTrivia(testNumberTriviaModel);
 
       verify(mockSharedPreferences.setString(
-        cachedNumberTrivia,
-        expectedJsonString,
-      ));
+          cachedNumberTrivia, expectedJsonString));
     });
   });
 }
