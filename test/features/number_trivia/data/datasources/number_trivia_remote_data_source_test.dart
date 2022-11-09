@@ -21,11 +21,23 @@ void main() {
     dataSource = NumberTriviaRemoteDataSourceImpl(client: mockClient);
   });
 
+  void setUpMockHttpClientOkResponse() {
+    when(mockClient.get(any, headers: anyNamed('headers')))
+        .thenAnswer((_) async => http.Response(fixture('trivia.json'), 200));
+  }
+
+  void setUpMockHttpClientNotFoundResponse() {
+    when(mockClient.get(any, headers: anyNamed('headers')))
+        .thenAnswer((_) async => http.Response('something went wrong', 404));
+  }
+
   group('getting concrete number trivia', () {
-    final testNumber = 1;
+    const testNumber = 1;
+    final testNumberTriviaModel =
+        NumberTriviaModel.fromJson(json.decode(fixture('trivia.json')));
+
     test('should get number info in json', () {
-      when(mockClient.get(any, headers: anyNamed('headers')))
-          .thenAnswer((_) async => http.Response(fixture('trivia.json'), 200));
+      setUpMockHttpClientOkResponse();
 
       dataSource.getConcreteNumberTrivia(testNumber);
 
@@ -38,6 +50,27 @@ void main() {
           headers: {
             'Content-Type': 'application/json',
           }));
+    });
+
+    test('should return number trivia when the response code is successful',
+        () async {
+      setUpMockHttpClientOkResponse();
+
+      final result = await dataSource.getConcreteNumberTrivia(testNumber);
+
+      expect(result, equals(testNumberTriviaModel));
+    });
+
+    test('should throw a server exception when the response is other than ok',
+        () async {
+      setUpMockHttpClientNotFoundResponse();
+
+      final call = dataSource.getConcreteNumberTrivia;
+
+      expect(
+        () => call(testNumber),
+        throwsA(const TypeMatcher<ServerException>()),
+      );
     });
   });
 }
