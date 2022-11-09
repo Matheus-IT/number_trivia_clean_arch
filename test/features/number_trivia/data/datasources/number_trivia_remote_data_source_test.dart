@@ -73,4 +73,46 @@ void main() {
       );
     });
   });
+
+  group('getting random number trivia', () {
+    final testNumberTriviaModel =
+        NumberTriviaModel.fromJson(json.decode(fixture('trivia.json')));
+
+    test('should get number info in json', () {
+      setUpMockHttpClientOkResponse();
+
+      dataSource.getRandomNumberTrivia();
+
+      verify(mockClient.get(
+          Uri(
+            scheme: 'http',
+            host: 'numbersapi.com',
+            path: '/random',
+          ),
+          headers: {
+            'Content-Type': 'application/json',
+          }));
+    });
+
+    test('should return number trivia when the response code is successful',
+        () async {
+      setUpMockHttpClientOkResponse();
+
+      final result = await dataSource.getRandomNumberTrivia();
+
+      expect(result, equals(testNumberTriviaModel));
+    });
+
+    test('should throw a server exception when the response is other than ok',
+        () async {
+      setUpMockHttpClientNotFoundResponse();
+
+      final call = dataSource.getRandomNumberTrivia;
+
+      expect(
+        () => call(),
+        throwsA(const TypeMatcher<ServerException>()),
+      );
+    });
+  });
 }
