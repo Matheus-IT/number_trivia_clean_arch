@@ -16,33 +16,26 @@ class NumberTriviaRemoteDataSourceImpl implements NumberTriviaRemoteDataSource {
 
   @override
   Future<NumberTriviaModel> getConcreteNumberTrivia(int number) async {
-    final response = await client.get(
-        Uri(
-          scheme: 'http',
-          host: 'numbersapi.com',
-          path: '/$number',
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-        });
-    if (response.statusCode == 200) {
-      return NumberTriviaModel.fromJson(json.decode(response.body));
-    } else {
-      throw ServerException();
-    }
+    return _getNumberTriviaFromUri(Uri(
+      scheme: 'http',
+      host: 'numbersapi.com',
+      path: '/$number',
+    ));
   }
 
   @override
   Future<NumberTriviaModel> getRandomNumberTrivia() async {
-    final response = await client.get(
-        Uri(
-          scheme: 'http',
-          host: 'numbersapi.com',
-          path: '/random',
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    return _getNumberTriviaFromUri(Uri(
+      scheme: 'http',
+      host: 'numbersapi.com',
+      path: '/random',
+    ));
+  }
+
+  Future<NumberTriviaModel> _getNumberTriviaFromUri(Uri uri) async {
+    final response = await client.get(uri, headers: {
+      'Content-Type': 'application/json',
+    });
     if (response.statusCode == 200) {
       return NumberTriviaModel.fromJson(json.decode(response.body));
     } else {
