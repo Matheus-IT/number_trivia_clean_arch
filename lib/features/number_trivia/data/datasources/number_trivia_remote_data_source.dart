@@ -15,7 +15,7 @@ class NumberTriviaRemoteDataSourceImpl implements NumberTriviaRemoteDataSource {
   NumberTriviaRemoteDataSourceImpl({required this.client});
 
   @override
-  Future<NumberTriviaModel> getConcreteNumberTrivia(int number) async {
+  Future<NumberTriviaModel> getConcreteNumberTrivia(int number) {
     return _getNumberTriviaFromUri(Uri(
       scheme: 'http',
       host: 'numbersapi.com',
@@ -24,7 +24,7 @@ class NumberTriviaRemoteDataSourceImpl implements NumberTriviaRemoteDataSource {
   }
 
   @override
-  Future<NumberTriviaModel> getRandomNumberTrivia() async {
+  Future<NumberTriviaModel> getRandomNumberTrivia() {
     return _getNumberTriviaFromUri(Uri(
       scheme: 'http',
       host: 'numbersapi.com',
