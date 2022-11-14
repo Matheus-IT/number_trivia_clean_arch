@@ -1,3 +1,4 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -38,18 +39,23 @@ void main() {
   });
 
   group('get trivia for concrete number', () {
-    final testNumberString = '1';
-    final testNumberParsed = 1;
-    final testNumberTrivia = NumberTrivia(text: 'testing', number: 1);
+    const testNumberString = '1';
+    const testNumberParsed = 1;
+    const testNumberTrivia = NumberTrivia(text: 'testing', number: 1);
 
-    test('should validate and convert the string to an unsigned integer',
-        () async {
-      when(inputConverter.stringToUnsignedInteger('1'))
-          .thenReturn(Right(testNumberParsed));
+    // blocTest(
+    //   'should validate and convert the string to an unsigned integer',
+    //   build: () => bloc,
+    //   act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testNumberString)),
+    //   expect: () => [],
+    // );
 
-      // bloc.dispatch(GetTriviaForConcreteNumber(testNumberString));
-
-      verify(inputConverter.stringToUnsignedInteger(testNumberString));
-    });
+    blocTest(
+      'should emit an error when the input is invalid',
+      setUp: () => when(inputConverter.stringToUnsignedInteger('-1')).thenReturn(Left(InvalidInputFailure())),
+      build: () => bloc,
+      act: (bloc) => bloc.add(const GetTriviaForConcreteNumber('-1')),
+      expect: () => [const Error(message: INVALID_INPUT_FAILURE_MESSAGE)],
+    );
   });
 }
