@@ -42,18 +42,33 @@ void main() {
 
   group('get trivia for concrete number', () {
     const testNumberString = '1';
+    const testInvalidNumberString = '-1';
     const testNumberParsed = 1;
     const testNumberTrivia = NumberTrivia(text: 'testing', number: 1);
+
+    setUpInputConverterWhenSuccess() {
+      when(
+        inputConverter.stringToUnsignedInteger('1'),
+      ).thenReturn(const Right(testNumberParsed));
+    }
+
+    setUpInputConverterWhenInvalidInput() {
+      when(
+        inputConverter.stringToUnsignedInteger('-1'),
+      ).thenReturn(Left(InvalidInputFailure()));
+    }
+
+    setUpUseCaseForCacheFailure() {
+      when(
+        getConcreteNumberTrivia(const Params(number: testNumberParsed)),
+      ).thenAnswer((_) async => Left(CacheFailure()));
+    }
 
     blocTest(
       'should emit correct events with proper message when cache failure',
       setUp: () {
-        when(
-          inputConverter.stringToUnsignedInteger('1'),
-        ).thenReturn(const Right(testNumberParsed));
-        when(
-          getConcreteNumberTrivia(const Params(number: testNumberParsed)),
-        ).thenAnswer((_) async => Left(CacheFailure()));
+        setUpInputConverterWhenSuccess();
+        setUpUseCaseForCacheFailure();
       },
       build: () => bloc,
       act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testNumberString)),
@@ -62,11 +77,9 @@ void main() {
 
     blocTest(
       'should emit an error when the input is invalid',
-      setUp: () => when(
-        inputConverter.stringToUnsignedInteger('-1'),
-      ).thenReturn(Left(InvalidInputFailure())),
+      setUp: () => setUpInputConverterWhenInvalidInput(),
       build: () => bloc,
-      act: (bloc) => bloc.add(const GetTriviaForConcreteNumber('-1')),
+      act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testInvalidNumberString)),
       expect: () => [const Error(message: INVALID_INPUT_FAILURE_MESSAGE)],
     );
   });
@@ -75,11 +88,15 @@ void main() {
     const testNumberParsed = 1;
     const testNumberTrivia = NumberTrivia(text: 'testing', number: 1);
 
+    setUpRandomUseCaseWhenSuccess() {
+      when(
+        getRandomNumberTrivia(NoParams()),
+      ).thenAnswer((_) async => const Right(testNumberTrivia));
+    }
+
     blocTest(
       'should emit loaded',
-      setUp: () => when(
-        getRandomNumberTrivia(NoParams()),
-      ).thenAnswer((_) async => const Right(testNumberTrivia)),
+      setUp: () => setUpRandomUseCaseWhenSuccess(),
       build: () => bloc,
       act: (bloc) => bloc.add(GetTriviaForRandomNumber()),
       expect: () => [Loading(), const Loaded(trivia: testNumberTrivia)],
