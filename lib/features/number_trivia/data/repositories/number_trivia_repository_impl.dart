@@ -8,12 +8,12 @@ import 'package:number_trivia_clean_arch/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/domain/repositories/number_trivia_repository.dart';
 
-class NumberTriviaRepositoryImplementation implements NumberTriviaRepository {
+class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   final NumberTriviaRemoteDataSource remoteDataSource;
   final NumberTriviaLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
 
-  NumberTriviaRepositoryImplementation({
+  NumberTriviaRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
