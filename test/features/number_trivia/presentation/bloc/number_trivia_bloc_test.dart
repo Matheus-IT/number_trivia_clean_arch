@@ -70,4 +70,19 @@ void main() {
       expect: () => [const Error(message: INVALID_INPUT_FAILURE_MESSAGE)],
     );
   });
+
+  group('get trivia for random number', () {
+    const testNumberParsed = 1;
+    const testNumberTrivia = NumberTrivia(text: 'testing', number: 1);
+
+    blocTest(
+      'should emit loaded',
+      setUp: () => when(
+        getRandomNumberTrivia(NoParams()),
+      ).thenAnswer((_) async => const Right(testNumberTrivia)),
+      build: () => bloc,
+      act: (bloc) => bloc.add(GetTriviaForRandomNumber()),
+      expect: () => [Loading(), const Loaded(trivia: testNumberTrivia)],
+    );
+  });
 }
