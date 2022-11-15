@@ -64,6 +64,18 @@ void main() {
       ).thenAnswer((_) async => Left(CacheFailure()));
     }
 
+    setUpUseCaseForServerFailure() {
+      when(
+        getConcreteNumberTrivia(const Params(number: testNumberParsed)),
+      ).thenAnswer((_) async => Left(ServerFailure()));
+    }
+
+    setUpUseCaseForSuccess() {
+      when(
+        getConcreteNumberTrivia(const Params(number: testNumberParsed)),
+      ).thenAnswer((_) async => const Right(testNumberTrivia));
+    }
+
     blocTest(
       'should emit correct events with proper message when cache failure',
       setUp: () {
@@ -76,11 +88,33 @@ void main() {
     );
 
     blocTest(
+      'should emit correct events when server failure',
+      setUp: () {
+        setUpInputConverterWhenSuccess();
+        setUpUseCaseForServerFailure();
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testNumberString)),
+      expect: () => [Loading(), const Error(message: SERVER_FAILURE_MESSAGE)],
+    );
+
+    blocTest(
       'should emit an error when the input is invalid',
       setUp: () => setUpInputConverterWhenInvalidInput(),
       build: () => bloc,
       act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testInvalidNumberString)),
       expect: () => [const Error(message: INVALID_INPUT_FAILURE_MESSAGE)],
+    );
+
+    blocTest(
+      'should emit loaded when successful',
+      setUp: () {
+        setUpInputConverterWhenSuccess();
+        setUpUseCaseForSuccess();
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(const GetTriviaForConcreteNumber(testNumberString)),
+      expect: () => [Loading(), const Loaded(trivia: testNumberTrivia)],
     );
   });
 
@@ -94,8 +128,40 @@ void main() {
       ).thenAnswer((_) async => const Right(testNumberTrivia));
     }
 
+    setUpUseCaseForCacheFailure() {
+      when(
+        getRandomNumberTrivia(NoParams()),
+      ).thenAnswer((_) async => Left(CacheFailure()));
+    }
+
+    setUpUseCaseForServerFailure() {
+      when(
+        getRandomNumberTrivia(NoParams()),
+      ).thenAnswer((_) async => Left(ServerFailure()));
+    }
+
     blocTest(
-      'should emit loaded',
+      'should emit correct events when cache failure',
+      setUp: () {
+        setUpUseCaseForCacheFailure();
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(GetTriviaForRandomNumber()),
+      expect: () => [Loading(), const Error(message: CACHE_FAILURE_MESSAGE)],
+    );
+
+    blocTest(
+      'should emit correct events when server failure',
+      setUp: () {
+        setUpUseCaseForServerFailure();
+      },
+      build: () => bloc,
+      act: (bloc) => bloc.add(GetTriviaForRandomNumber()),
+      expect: () => [Loading(), const Error(message: SERVER_FAILURE_MESSAGE)],
+    );
+
+    blocTest(
+      'should emit loaded when successful',
       setUp: () => setUpRandomUseCaseWhenSuccess(),
       build: () => bloc,
       act: (bloc) => bloc.add(GetTriviaForRandomNumber()),
