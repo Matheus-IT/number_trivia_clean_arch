@@ -36,7 +36,6 @@ class NumberTriviaPage extends StatelessWidget {
                   if (state is Loaded) {
                     return TriviaDisplay(
                       numberTrivia: NumberTrivia(number: 1, text: 'testing'),
-                      // Trying to contribute
                     );
                   }
                   if (state is Error) {
