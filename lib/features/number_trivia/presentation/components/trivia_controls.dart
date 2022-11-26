@@ -27,6 +27,7 @@ class _TriviaControlsState extends State<TriviaControls> {
           keyboardType: TextInputType.number,
           controller: textController,
           onChanged: (value) => inputStr = value,
+          onSubmitted: (_) => dispatchInputNumber(),
         ),
         const SizedBox(height: 10),
         Row(
