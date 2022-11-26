@@ -19,10 +19,12 @@ class TriviaDisplay extends StatelessWidget {
             numberTrivia.number.toString(),
             style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
           ),
-          Text(
-            numberTrivia.text,
-            style: const TextStyle(fontSize: 25),
-            textAlign: TextAlign.center,
+          Expanded(
+            child: Text(
+              numberTrivia.text,
+              style: const TextStyle(fontSize: 25),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

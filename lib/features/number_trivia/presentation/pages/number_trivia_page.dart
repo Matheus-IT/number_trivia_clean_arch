@@ -34,9 +34,7 @@ class NumberTriviaPage extends StatelessWidget {
                     return const LoadIndicator();
                   }
                   if (state is Loaded) {
-                    return TriviaDisplay(
-                      numberTrivia: NumberTrivia(number: 1, text: 'testing'),
-                    );
+                    return TriviaDisplay(numberTrivia: state.trivia);
                   }
                   if (state is Error) {
                     return MessageDisplay(message: state.message);
