@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:number_trivia_clean_arch/features/number_trivia/domain/entities/number_trivia.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/presentation/bloc/number_trivia_bloc.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/presentation/components/load_indicator.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/presentation/components/message_display.dart';
+import 'package:number_trivia_clean_arch/features/number_trivia/presentation/components/trivia_controls.dart';
 import 'package:number_trivia_clean_arch/features/number_trivia/presentation/components/trivia_display.dart';
 import 'package:number_trivia_clean_arch/injection_container.dart';
 
@@ -45,29 +45,7 @@ class NumberTriviaPage extends StatelessWidget {
               const SizedBox(
                 height: 32,
               ),
-              Column(
-                children: [
-                  const Placeholder(
-                    fallbackHeight: 50,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: const [
-                      Expanded(
-                          child: Placeholder(
-                        fallbackHeight: 40,
-                      )),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                          child: Placeholder(
-                        fallbackHeight: 40,
-                      ))
-                    ],
-                  )
-                ],
-              )
+              const TriviaControls()
             ],
           ),
         ),
