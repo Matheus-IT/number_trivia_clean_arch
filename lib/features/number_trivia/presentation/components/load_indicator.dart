@@ -9,7 +9,9 @@ class LoadIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height / 2.5,
-      child: const CircularProgressIndicator(),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }
